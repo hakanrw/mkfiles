@@ -1,0 +1,43 @@
+ifndef TARGET_NAME
+$(error TARGET_NAME is not set)
+endif
+
+# Compiler and flags
+CXXFLAGS = -std=c++11 -Wall -Wextra
+
+# Directories
+SRC_DIR = src
+INCLUDE_DIR = $(SRC_DIR)/include
+OBJ_DIR = obj
+BIN_DIR = bin
+
+# Files
+SRCS := $(wildcard $(SRC_DIR)/*.cpp)
+OBJS := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
+DEPS := $(wildcard $(INCLUDE_DIR)/*.h $(INCLUDE_DIR)/*.hpp $(INCLUDE_DIR)/*.tpp)
+
+# Executable name
+EXEC = $(BIN_DIR)/$(TARGET_NAME)
+
+# Default target
+all: $(EXEC)
+
+# Rule for creating object files
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(DEPS)
+	@mkdir -p $(@D)
+	$(CXX) $(CXXFLAGS) -I$(INCLUDE_DIR) -c $< -o $@
+
+# Rule for creating the executable
+$(EXEC): $(OBJS)
+	@mkdir -p $(@D)
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
+# Clean target
+clean:
+	rm -rf $(OBJ_DIR) $(BIN_DIR)
+
+run: $(EXEC)
+	./$(EXEC)
+
+# Phony targets
+.PHONY: all clean run
